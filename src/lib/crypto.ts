@@ -356,3 +356,121 @@ export function truncateHash(hash: string, start = 8, end = 8): string {
   if (!hash || hash.length <= start + end) return hash || '';
   return `${hash.substring(0, start)}...${hash.substring(hash.length - end)}`;
 }
+
+/**
+ * AES-256-GCM Authenticated Encryption Envelope with PBKDF2 Key Derivation
+ */
+export interface EncryptedStegoEnvelope {
+  magic: 'COC_STEGO_V2_AES_GCM';
+  saltHex: string; // 16 bytes = 32 hex chars
+  ivHex: string;   // 12 bytes = 24 hex chars (standard 96-bit AES-GCM nonce)
+  ciphertextHex: string; // Encrypted ciphertext + 128-bit authentication tag
+  algorithm: 'AES-256-GCM';
+  kdf: 'PBKDF2-SHA256';
+  iterations: number;
+}
+
+/**
+ * Derive AES-256-GCM CryptoKey using PBKDF2 with SHA-256 from a passphrase and salt
+ */
+export async function deriveKeyFromPassphrase(
+  passphrase: string,
+  salt: Uint8Array,
+  iterations = 100000
+): Promise<CryptoKey> {
+  const encoder = new TextEncoder();
+  const passwordKey = await crypto.subtle.importKey(
+    'raw',
+    encoder.encode(passphrase),
+    { name: 'PBKDF2' },
+    false,
+    ['deriveKey']
+  );
+
+  return await crypto.subtle.deriveKey(
+    {
+      name: 'PBKDF2',
+      salt: salt as unknown as BufferSource,
+      iterations,
+      hash: 'SHA-256',
+    },
+    passwordKey,
+    {
+      name: 'AES-GCM',
+      length: 256,
+    },
+    false,
+    ['encrypt', 'decrypt']
+  );
+}
+
+/**
+ * Encrypt plaintext string using AES-256-GCM with secure random 12-byte IV and 16-byte PBKDF2 salt
+ */
+export async function encryptAesGcmWithPassword(
+  plaintext: string,
+  passphrase: string
+): Promise<EncryptedStegoEnvelope> {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const key = await deriveKeyFromPassphrase(passphrase, salt, 100000);
+
+  const encoder = new TextEncoder();
+  const plaintextBytes = encoder.encode(plaintext);
+
+  const encryptedBuffer = await crypto.subtle.encrypt(
+    {
+      name: 'AES-GCM',
+      iv: iv as unknown as BufferSource,
+      tagLength: 128,
+    },
+    key,
+    plaintextBytes as unknown as BufferSource
+  );
+
+  return {
+    magic: 'COC_STEGO_V2_AES_GCM',
+    saltHex: bufferToHex(salt),
+    ivHex: bufferToHex(iv),
+    ciphertextHex: bufferToHex(encryptedBuffer),
+    algorithm: 'AES-256-GCM',
+    kdf: 'PBKDF2-SHA256',
+    iterations: 100000,
+  };
+}
+
+/**
+ * Decrypt AES-256-GCM ciphertext using PBKDF2 and verify the 128-bit authentication tag
+ */
+export async function decryptAesGcmWithPassword(
+  envelope: EncryptedStegoEnvelope,
+  passphrase: string
+): Promise<string> {
+  if (envelope.magic !== 'COC_STEGO_V2_AES_GCM') {
+    throw new Error('Invalid encryption envelope: unexpected magic identifier.');
+  }
+
+  const salt = hexToBuffer(envelope.saltHex);
+  const iv = hexToBuffer(envelope.ivHex);
+  const ciphertextWithTag = hexToBuffer(envelope.ciphertextHex);
+
+  const key = await deriveKeyFromPassphrase(passphrase, salt, envelope.iterations || 100000);
+
+  try {
+    const decryptedBuffer = await crypto.subtle.decrypt(
+      {
+        name: 'AES-GCM',
+        iv: iv as unknown as BufferSource,
+        tagLength: 128,
+      },
+      key,
+      ciphertextWithTag as unknown as BufferSource
+    );
+
+    const decoder = new TextDecoder();
+    return decoder.decode(decryptedBuffer);
+  } catch (err) {
+    throw new Error('Authentication tag verification failed or incorrect passphrase.');
+  }
+}
+

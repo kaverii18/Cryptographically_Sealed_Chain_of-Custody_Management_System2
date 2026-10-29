@@ -198,11 +198,22 @@ export const ForensicVerificationModule: React.FC<ForensicVerificationModuleProp
               </div>
 
               <div>
-                <h2 className="text-lg font-bold">
-                  {verificationResult.isValid
-                    ? 'Chain Integrity Sealed & Admissible'
-                    : 'Cryptographic Tampering Detected! Chain Invalid'}
-                </h2>
+                <div className="flex items-center gap-2.5 mb-1">
+                  <span
+                    className={`px-2.5 py-0.5 text-xs font-black uppercase tracking-wider rounded font-mono ${
+                      verificationResult.isValid
+                        ? 'bg-emerald-600 text-white'
+                        : 'bg-rose-600 text-white'
+                    }`}
+                  >
+                    {verificationResult.isValid ? 'VERIFIED' : 'TAMPERED / FAILED'}
+                  </span>
+                  <h2 className="text-lg font-bold">
+                    {verificationResult.isValid
+                      ? 'Chain Integrity Sealed & Admissible'
+                      : 'Cryptographic Tampering Detected! Chain Invalid'}
+                  </h2>
+                </div>
                 <p className="text-xs mt-1 text-slate-700">
                   {verificationResult.isValid
                     ? 'All SHA-256 block hashes, parent pointers, and ECDSA digital signatures passed strict Web Crypto API verification. The chain of custody is untampered and mathematically continuous.'
@@ -213,7 +224,7 @@ export const ForensicVerificationModule: React.FC<ForensicVerificationModuleProp
                 {verificationResult.tamperedBlockIndex !== undefined && (
                   <div className="mt-2.5 inline-flex items-center gap-2 px-3 py-1 bg-rose-100 border border-rose-300 text-rose-900 rounded font-semibold text-xs">
                     <AlertTriangle className="w-4 h-4 text-rose-600" />
-                    <span>Compromised Block: #{verificationResult.tamperedBlockIndex}</span>
+                    <span>Compromised Block Index: #{verificationResult.tamperedBlockIndex}</span>
                   </div>
                 )}
               </div>

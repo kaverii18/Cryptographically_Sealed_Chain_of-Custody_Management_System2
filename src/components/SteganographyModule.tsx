@@ -420,7 +420,7 @@ export const SteganographyModule: React.FC<SteganographyModuleProps> = ({
               </select>
             </div>
             <h1 className="text-xl font-bold text-slate-900">
-              Steganographic Watermarking & Forensics Module
+              Steganography & Encryption Forensics
             </h1>
             <p className="text-xs text-slate-600 mt-1 max-w-2xl">
               Embed tamper-evident cryptographic provenance into evidence images via LSB steganography, or forensically extract and verify embedded custody records from suspect media.

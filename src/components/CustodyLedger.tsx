@@ -302,6 +302,7 @@ export const CustodyLedger: React.FC<CustodyLedgerProps> = ({
             <span>Current Custodian: <strong className="text-slate-800 font-medium">{evidence.currentCustodian}</strong></span>
           </div>
         </div>
+
       </div>
 
       {/* Visual Chain Topology Stream */}

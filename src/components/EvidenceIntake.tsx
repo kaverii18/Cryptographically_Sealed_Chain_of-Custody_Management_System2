@@ -373,24 +373,29 @@ export const EvidenceIntake: React.FC<EvidenceIntakeProps> = ({
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       {/* Header Banner */}
-      <div className="bg-white border border-slate-200 rounded-lg p-5">
+      <div className="bg-slate-900 border border-slate-800 rounded-lg p-5 text-white">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-lg bg-purple-900/40 border border-purple-700/50 text-purple-400 flex items-center justify-center shrink-0">
               <Shield className="w-5 h-5" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-slate-900">Evidence Intake & Physical Labeling</h1>
-              <p className="text-xs text-slate-500">
-                Compute browser-side SHA-256 hash, generate scannable physical QR label, and seal Genesis Block #0 via ECDSA P-256.
+              <div className="flex items-center gap-2 text-xs text-purple-400 font-mono mb-0.5">
+                <span>EVIDENCE INTAKE WORKFLOW</span>
+                <span aria-hidden="true">·</span>
+                <span className="text-slate-400">FIPS 186-4 ECDSA P-256</span>
+              </div>
+              <h1 className="text-xl font-bold text-white">Digital Evidence Intake & Physical Tagging</h1>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Calculate client-side SHA-256 hash in browser memory, generate scannable physical QR evidence label, and seal Genesis Block #0.
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded flex items-center gap-1.5">
-              <QrCode className="w-3.5 h-3.5" />
-              <span>Live QR Evidence Tag Ready</span>
+            <span className="text-xs font-semibold text-purple-300 bg-purple-950/60 border border-purple-800/60 px-2.5 py-1 rounded flex items-center gap-1.5 font-mono">
+              <QrCode className="w-3.5 h-3.5 text-purple-400" />
+              <span>QR Barcode Live</span>
             </span>
           </div>
         </div>

@@ -244,7 +244,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         className="flex items-center gap-1 px-3 py-1 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded transition-colors"
                       >
                         <FileCheck className="w-3.5 h-3.5" />
-                        <span>Custody Ledger</span>
+                        <span>Chain of Custody</span>
                       </button>
 
                       <button
